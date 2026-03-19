@@ -49,6 +49,41 @@ class ComputedTorqueController(Node):
             self.q_d = [msg.data[0], msg.data[1]]
             self.get_logger().info(f"Nuevo objetivo recibido: q1={self.q_d[0]:.3f}, q2={self.q_d[1]:.3f}")
 
+   '''def target_service_callback(self, request, response):
+    
+        L1 = 0.5  # Mismos valores de tu URDF
+        L2 = 0.4
+        
+        x_req = request.x
+        y_req = request.y
+        r_sq = x_req**2 + y_req**2
+        max_reach = (L1 + L2)**2
+        
+        # Validation
+        if r_sq > max_reach:
+            response.success = False
+            response.message = f"Point ({x_req:.2f}, {y_req:.2f}) unreachable."
+            return response
+            
+        # --- CÁLCULO DE CINEMÁTICA INVERSA ---
+        # Calculamos q2 usando la ley de cosenos
+        cos_q2 = (r_sq - L1**2 - L2**2) / (2 * L1 * L2)
+        q2_d = math.acos(cos_q2) # Puedes usar el codo arriba o codo abajo
+        
+        # Calculamos q1
+        k1 = L1 + L2 * math.cos(q2_d)
+        k2 = L2 * math.sin(q2_d)
+        q1_d = math.atan2(y_req, x_req) - math.atan2(k2, k1)
+        
+        # Update Target via Inverse Kinematics
+        self.q_d = [q1_d, q2_d]
+        response.success = True
+        response.message = f"Target successfully updated. Angles: q1={q1_d:.2f}, q2={q2_d:.2f}"
+        
+        self.get_logger().info(response.message)
+        return response
+'''
+
     def control_loop(self):
         if not self.listo: return 
             
